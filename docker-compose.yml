@@ -1,0 +1,61 @@
+services:
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: mssql
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "juE03W~3]$@o"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    networks:
+      - devnet
+
+  mssql-setup:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    depends_on:
+      - mssql
+    volumes:
+      - ./db:/init-sql
+    entrypoint: ["/bin/bash","-lc"]
+    command: >
+      "
+      until /opt/mssql-tools/bin/sqlcmd -S mssql -U sa -P 'juE03W~3]$@o' -Q 'select 1' >/dev/null 2>&1; do
+        echo 'Esperando SQL...'; sleep 2;
+      done;
+      /opt/mssql-tools/bin/sqlcmd -S mssql -U sa -P 'juE03W~3]$@o' -Q \"IF DB_ID('TokaTasks') IS NULL CREATE DATABASE [TokaTasks];\";
+      /opt/mssql-tools/bin/sqlcmd -S mssql -U sa -P 'juE03W~3]$@o' -d TokaTasks -i /init-sql/init.sql;
+      "
+    networks:
+      - devnet
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: go-api
+    depends_on:
+      - mssql
+      - mssql-setup
+    environment:
+      DB_HOST: "mssql"
+      DB_PORT: "1433"
+      DB_USER: "sa"
+      DB_PASS: "juE03W~3]$@o"
+      DB_NAME: "TokaTasks"
+      DB_ENCRYPT: "disable"
+      DB_TRUSTSERVERCERT: "true"
+      PORT: "8080"
+      ADMIN_USER: "admin"
+      ADMIN_PASS: "Admin1!"
+    ports:
+      - "8080:8080"
+    networks:
+      - devnet
+
+volumes:
+  sqlserver_data:
+
+networks:
+  devnet:

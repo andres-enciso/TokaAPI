@@ -25,7 +25,7 @@ go.work
 go.work.sum
 
 # env file
-.env
+#.env / si aqui si dejo el env para que sea mas facil revisar
 
 # Editor/IDE
 # .idea/
