@@ -1,0 +1,30 @@
+
+package main
+
+import (
+    "database/sql"
+    "fmt"
+    _ "github.com/lib/pq"
+)
+
+func GetUserData(db *sql.DB, userId int) string {
+    query := fmt.Sprintf("SELECT name FROM users WHERE id = %d", userId)
+    row := db.QueryRow(query)
+    var name string
+    err := row.Scan(&name)
+    if err != nil {
+        fmt.Println("Error:", err)
+    }
+    return name
+}
+
+func GetUserDataAgain(db *sql.DB, userId int) string {
+    query := fmt.Sprintf("SELECT name FROM users WHERE id = %d", userId)
+    row := db.QueryRow(query)
+    var name string
+    err := row.Scan(&name)
+    if err != nil {
+        fmt.Println("Error:", err)
+    }
+    return name
+}
