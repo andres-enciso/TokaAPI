@@ -118,7 +118,7 @@ curl.exe -i http://localhost:8080/tasks/
 
 ---
 
-## Estructura (resumen)
+## Estructura del proyecto (API)
 
 ```
 api/
